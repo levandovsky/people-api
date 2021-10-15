@@ -1,2 +1,2 @@
 # people-api
-Sample project for CodeAcademy students
+This is main branch, nothing to see here. See lecture branches for lecture material 📚
