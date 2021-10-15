@@ -1,6 +1,17 @@
 {
-    "type": "module",
-    "devDependencies": {
-        "@types/node": "^16.11.0"
-    }
+  "name": "people-api",
+  "version": "1.0.0",
+  "description": "Api project for CodeAcademy students",
+  "main": "index.js",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^16.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/levandovsky/people-api.git"
+  },
+  "keywords": [],
+  "author": "Yegor Levandovskyi",
+  "license": "ISC"
 }
