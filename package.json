@@ -2,10 +2,10 @@
   "name": "people-api",
   "version": "1.0.0",
   "description": "Api project for CodeAcademy students",
-  "main": "index.js",
   "type": "module",
-  "devDependencies": {
-    "@types/node": "^16.11.0"
+  "scripts": {
+    "start:cli": "node cli.js",
+    "start:server": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -13,5 +13,12 @@
   },
   "keywords": [],
   "author": "Yegor Levandovskyi",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.11.0"
+  }
 }

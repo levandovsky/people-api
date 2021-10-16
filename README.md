@@ -1,8 +1,10 @@
-# Second lecture
-Let's start working on our project!
+# Third lecture
+Modularize our project and create express server!
 
 ## Overview
-In this lecture we created a simple cli program that gets info from terminal input and then writes it to `db.json` file.
+In this lecture we divided our program into different modules, and created a `express` server. On the server we created `get` route that uses our `PeopleDatabase` class to send people array to client.
 
-## Thoughts? 🤔
-Currently our program does exactly what we want it to do. What do you think about the code? Does it read well? How do you think we can make it better? Will it scale well?
+## Material
+- [Express CAO](https://cao.lt/topic/node1/lesson/YNrnvRIAACcAyNat)
+- [Express `get` method](http://expressjs.com/en/5x/api.html#app.get.method)
+- [HTTP methods](https://www.restapitutorial.com/lessons/httpmethods.html)
