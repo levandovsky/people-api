@@ -1,4 +1,4 @@
-import PeopleDatabase from "./PeopleDatabase.js";
+import PeopleDatabase from "../server/PeopleDatabase.js";
 import Readline from "./Readline.js";
 
 // sukurem async contexta

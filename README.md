@@ -1,10 +1,15 @@
 # Third lecture
-Modularize our project and create express server!
+Bunch of things happened. Overall project restructure, we splitting files into folders even more. Add client, add cors, add post route.
 
 ## Overview
-In this lecture we divided our program into different modules, and created a `express` server. On the server we created `get` route that uses our `PeopleDatabase` class to send people array to client.
+In this lecture we created client that fetches data from our server, learned what cors is and added `post` route to add a person to our database. We split our project into following folders:
+- `cli` - where our cli and readline code lives
+- `client` - where our client code lives
+- `database` - where our database code lives
+- `server` - where our server code lives
 
 ## Material
-- [Express CAO](https://cao.lt/topic/node1/lesson/YNrnvRIAACcAyNat)
-- [Express `get` method](http://expressjs.com/en/5x/api.html#app.get.method)
-- [HTTP methods](https://www.restapitutorial.com/lessons/httpmethods.html)
+- [Express `post` method](http://expressjs.com/en/5x/api.html#app.post.method)
+- [What is CORS?](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+- [HTTP 201 or `successfully added` code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201)
+- [HTTP 400 or `bad request` code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)

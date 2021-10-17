@@ -4,8 +4,8 @@
   "description": "Api project for CodeAcademy students",
   "type": "module",
   "scripts": {
-    "start:cli": "node cli.js",
-    "start:server": "node server.js"
+    "start:cli": "node ./cli/index.js",
+    "start:server": "node ./server/index.js"
   },
   "repository": {
     "type": "git",
