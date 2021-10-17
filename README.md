@@ -10,6 +10,7 @@ In this lecture we created client that fetches data from our server, learned wha
 
 ## Material
 - [Express `post` method](http://expressjs.com/en/5x/api.html#app.post.method)
+- [Using `fetch` to send data to the server](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#uploading_json_data)
 - [What is CORS?](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
 - [HTTP 201 or `successfully added` code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/201)
 - [HTTP 400 or `bad request` code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400)
