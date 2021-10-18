@@ -8,7 +8,10 @@ export default class Database {
     #path;
 
     constructor(name) {
+        // get path to current module
         const path = fileURLToPath(import.meta.url);
+
+        // get directory name of the current file
         const _dirname = dirname(path);
 
         // create file path and save it to private field
