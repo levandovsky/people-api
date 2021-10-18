@@ -25,6 +25,9 @@ export default class PeopleDatabase {
 
         // write new state to database
         await this.#db.write(newState);
+
+        // return added person
+        return update;
     }
 
     // get all people
