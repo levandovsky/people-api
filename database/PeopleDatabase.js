@@ -1,4 +1,4 @@
-import Database from "../server/Database.js";
+import Database from "./Database.js";
 
 export default class PeopleDatabase {
     // private field

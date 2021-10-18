@@ -1,13 +1,18 @@
 import { readFile, writeFile } from "fs/promises";
 import { readFileSync, writeFileSync } from "fs";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 export default class Database {
     // private field where we will hold path to this database
     #path;
 
     constructor(name) {
+        const path = fileURLToPath(import.meta.url);
+        const _dirname = dirname(path);
+
         // create file path and save it to private field
-        this.#path = `${name}.json`;
+        this.#path = `${_dirname}/${name}.json`;
 
         // try to read file
         try {
