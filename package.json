@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start:cli": "node ./cli/index.js",
-    "start:server": "node ./server/index.js"
+    "start:server": "nodemon --ignore ./database/people.json ./server/index.js"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,9 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.13"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",

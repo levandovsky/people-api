@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import PeopleDatabase from "../database/PeopleDatabase.js";
+import morgan from "morgan";
 
 // create express application
 const app = express();
@@ -10,6 +11,8 @@ app.use(express.json());
 
 // use cors middleware to allow requests from all origins
 app.use(cors())
+
+app.use(morgan("dev"))
 
 // create people database object
 const database = new PeopleDatabase();
@@ -26,6 +29,28 @@ app.get("/ping", (req, res) => {
 app.get("/people", async (req, res) => {
     const people = await database.getAll();
     res.send(people)
+})
+
+app.get("/people/:name", async (req, res) => {
+    const { name } = req.params;
+    const allByName = await database.getAllWithName(name)
+
+    res.send(allByName);
+})
+
+app.get("/person/timestamp/:timestamp", async (req, res) => {
+    const { timestamp } = req.params;
+    const num = Number(timestamp);
+    const person = await database.getOneByTimestamp(num);
+
+    res.send(person)
+})
+
+app.get("/person/name/:name", async (req, res) => {
+    const { name } = req.params
+    const person = await database.getOneByName(name);
+
+    res.send(person);
 })
 
 // add a person to database
@@ -64,7 +89,7 @@ app.post("/people", async (req, res) => {
         success: true,
         added: person
     });
-})
+});
 
 // start a server on 'port'
 app.listen(port, () => {
