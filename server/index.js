@@ -12,6 +12,7 @@ app.use(express.json());
 // use cors middleware to allow requests from all origins
 app.use(cors())
 
+// middleware that logs server events to console
 app.use(morgan("dev"))
 
 // create people database object
@@ -31,6 +32,7 @@ app.get("/people", async (req, res) => {
     res.send(people)
 })
 
+// get all people with name
 app.get("/people/:name", async (req, res) => {
     const { name } = req.params;
     const allByName = await database.getAllWithName(name)
@@ -38,14 +40,15 @@ app.get("/people/:name", async (req, res) => {
     res.send(allByName);
 })
 
+// get one person by timestamp
 app.get("/person/timestamp/:timestamp", async (req, res) => {
-    const { timestamp } = req.params;
-    const num = Number(timestamp);
-    const person = await database.getOneByTimestamp(num);
+    const timestamp = Number(req.params.timestamp);
+    const person = await database.getOneByTimestamp(timestamp);
 
     res.send(person)
 })
 
+// get one person with name
 app.get("/person/name/:name", async (req, res) => {
     const { name } = req.params
     const person = await database.getOneByName(name);
@@ -55,16 +58,11 @@ app.get("/person/name/:name", async (req, res) => {
 
 // add a person to database
 app.post("/people", async (req, res) => {
-    // destructure name and age from request body
-    const {
-        body: {
-            name,
-            age
-        }
-    } = req;
+    // set person object to request body
+    const person = {...req.body};
 
     // validate if one of the fileds is missing
-    if (!name || !age) {
+    if (!person.name || !person.age) {
         // send status 400 with error payload in response
         res.status(400).send({
             success: false,
@@ -75,19 +73,14 @@ app.post("/people", async (req, res) => {
         return;
     }
 
-    // create person object
-    const person = {
-        name,
-        age
-    }
 
     // add person to database
-    await database.addOne(person);
+    const added = await database.addOne(person);
 
     // send status 201 with added person in response
     res.status(201).send({
         success: true,
-        added: person
+        added
     });
 });
 
