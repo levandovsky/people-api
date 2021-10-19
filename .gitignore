@@ -1,2 +1,3 @@
-node_modules/
-database/people.json
+server/node_modules/
+server/database/people.json
+server/.env

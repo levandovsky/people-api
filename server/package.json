@@ -1,0 +1,34 @@
+{
+    "name": "people-api",
+    "version": "1.0.0",
+    "description": "Api project for CodeAcademy students",
+    "type": "module",
+    "scripts": {
+        "start:cli": "node ./cli/index.js",
+        "start:server": "nodemon --ignore ./database/people.json ./src/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/levandovsky/people-api.git"
+    },
+    "keywords": [],
+    "author": "Yegor Levandovskyi",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^10.0.0",
+        "express": "^4.17.1",
+        "morgan": "^1.10.0",
+        "nodemon": "^2.0.13"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.15.8",
+        "@babel/eslint-parser": "^7.15.8",
+        "@types/express": "^4.17.13",
+        "@types/node": "^16.11.0",
+        "babel-eslint": "^10.1.0",
+        "eslint": "^8.0.1",
+        "eslint-config-prettier": "^8.3.0",
+        "prettier": "^2.4.1"
+    }
+}

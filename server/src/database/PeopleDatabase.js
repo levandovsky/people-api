@@ -17,11 +17,11 @@ export default class PeopleDatabase {
         // create person with timestamp
         const update = {
             ...person,
-            timestamp: Date.now()
-        }
+            timestamp: Date.now(),
+        };
 
         // append new person to old state
-        const newState = [...state, update]
+        const newState = [...state, update];
 
         // write new state to database
         await this.#db.write(newState);
@@ -43,7 +43,9 @@ export default class PeopleDatabase {
         const data = await this.#db.read();
 
         // find a person object where timestamp field is the same as we passed to this function
-        const found = data.find(person => person.timestamp === timestamp);
+        const found = data.find(
+            (person) => person.timestamp === timestamp
+        );
 
         // return whatever the result is
         return found;
@@ -55,7 +57,7 @@ export default class PeopleDatabase {
         const data = await this.#db.read();
 
         // find a person object where name field is the same as we passed to this function
-        const found = data.find(person => person.name === name);
+        const found = data.find((person) => person.name === name);
 
         // return whatever the result is
         return found;
@@ -67,9 +69,19 @@ export default class PeopleDatabase {
         const data = await this.#db.read();
 
         // filter array based on name we passed to this function
-        const found = data.filter(person => person.name === name);
+        const found = data.filter((person) => person.name === name);
 
         // return filtered array
         return found;
+    }
+
+    // removes person with 'timestamp' from database
+    async deleteByTimestamp(timestamp) {
+        // todo: finish logic
+    }
+
+    // updates existing user with 'timestamp' in database
+    async updateByTimestamp(timestamp, update) {
+        // todo: finish logic
     }
 }

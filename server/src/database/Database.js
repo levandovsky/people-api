@@ -27,7 +27,7 @@ export default class Database {
         } catch {
             // if the file does not exist, write empty array into it
             writeFileSync(this.#path, JSON.stringify([]));
-            console.log("Creating database...")
+            console.log("Creating database...");
         }
     }
 

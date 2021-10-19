@@ -10,20 +10,20 @@ const main = async () => {
     const database = new PeopleDatabase();
 
     // uzduodam klausimus
-    const name = await readline.question("What is your name?\n")
-    const age = await readline.question("What is your age?\n")
+    const name = await readline.question("What is your name?\n");
+    const age = await readline.question("What is your age?\n");
 
     // sukuriam objecta, kur idedam info is klausimu
     const person = {
         name,
-        age
-    }
+        age,
+    };
 
     // pridedam person i database
     await database.addOne(person);
 
     // uzdarom cli
     readline.close();
-}
+};
 
 main();
