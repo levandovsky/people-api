@@ -1,2 +1,2 @@
-# Sixth lecture
+# Seventh lecture
 Nothing here yet...
