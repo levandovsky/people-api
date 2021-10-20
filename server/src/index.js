@@ -54,11 +54,45 @@ app.get("/person/timestamp/:timestamp", async (req, res) => {
 
 // remove person by timestamp
 app.delete("/person/timestamp/:timestamp", async (req, res) => {
-    // todo: finish logic
+    const timestamp = Number(req.params.timestamp);
+    const result = await database.deleteByTimestamp(timestamp);
+
+    if (!result) {
+        res.status(404).send({
+            success: false,
+            error: "User not found",
+        });
+
+        return;
+    }
+
+    res.send({
+        success: true,
+        updated: result,
+    });
 });
 
 // update person by timestamp
-app.put();
+app.patch("/person/timestamp/:timestamp", async (req, res) => {
+    const update = { ...req.body };
+    const timestamp = Number(req.params.timestamp);
+    const result = await database.updateByTimestamp(
+        timestamp,
+        update
+    );
+
+    if (!result) {
+        res.status(404).send({
+            success: false,
+            error: "User not found"
+        });
+    }
+
+    res.send({
+        success: true,
+        updated: result
+    });
+});
 
 // get one person with name
 app.get("/person/name/:name", async (req, res) => {

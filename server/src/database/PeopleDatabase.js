@@ -77,11 +77,44 @@ export default class PeopleDatabase {
 
     // removes person with 'timestamp' from database
     async deleteByTimestamp(timestamp) {
-        // todo: finish logic
+        const data = await this.#db.read();
+        const found = data.find(
+            (person) => person.timestamp === timestamp
+        );
+
+        if (!found) return null;
+
+        const update = data.filter(
+            (person) => person.timestamp !== timestamp
+        );
+
+        await this.#db.write(update);
+
+        return update;
     }
 
     // updates existing user with 'timestamp' in database
     async updateByTimestamp(timestamp, update) {
-        // todo: finish logic
+        const data = await this.#db.read();
+        const found = data.find(
+            (person) => person.timestamp === timestamp
+        );
+
+        if (!found) return null;
+
+        const updated = data.map(person => {
+            if (person.timestamp === timestamp) {
+                return {
+                    ...person,
+                    ...update,
+                };
+            }
+
+            return person;
+        });
+
+        await this.#db.write(updated);
+
+        return updated;
     }
 }
