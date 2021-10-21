@@ -1,16 +1,12 @@
-import mongoose from "mongoose";
+export default class Person {
+    constructor(name, age) {
+        if (!name || !age) {
+            throw new Error("Missing field!");
+        }
 
-const {Schema, model} = mongoose;
-
-const personSchema = new Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    age: {
-        type: String,
-        required: true
+        this.name = name;
+        this.age = age;
+        this.createdAt = Date.now();
+        this.updatedAt = null;
     }
-});
-
-export default model("people", personSchema);
+}

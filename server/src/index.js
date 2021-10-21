@@ -2,13 +2,14 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import peopleRouter from "./routes/people.js";
+import peopleMongoRouter from "./routes/people-mongo.js";
+import peopleJsonRouter from "./routes/people-json.js";
 import { getConnection } from "./database/mongo.js";
 
 const main = async () => {
     try {
         // connect to mongo
-        await getConnection();
+        const connection = await getConnection();
 
         // get port number from env, if there is none, use 8080
         const port = process.env.PORT || 8080;
@@ -28,7 +29,12 @@ const main = async () => {
         // middleware that logs server events to console
         app.use(morgan("dev"));
 
-        app.use("/people", peopleRouter);
+        app.use("/people-json", peopleJsonRouter);
+
+        app.use("/people-mongo", (req, _, next) => {
+            req.mongo = connection;
+            next();
+        }, peopleMongoRouter);
 
         // start a server on 'port'
         app.listen(port, () => {
