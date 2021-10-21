@@ -9,23 +9,19 @@ const {
     MONGO_CLUSTER
 } = process.env;
 
-// create url string
-const url = `mongodb+srv://${MONGO_USER}:${MONGO_PW}@${MONGO_CLUSTER}/myFirstDatabase?retryWrites=true&w=majority`;
+const url = `mongodb+srv://${MONGO_USER}:${MONGO_PW}@${MONGO_CLUSTER}/people-api?retryWrites=true&w=majority`;
 
-// create async context
-const main = async () => {
+export const getConnection = async () => {
     // try to connect to cluster
+    console.log("Connecting to mongo...");
     try {
         // create mongoose connection
         const connection = await mongoose.connect(url);
-
-        // log connection object
-        console.log(connection);
+        console.log("Connected to mongo!");
+        return connection;
     } catch (e) {
         // if there is an error log it to the console
-        console.error(e);
+        console.error("Couldn't connect to mongo, error: ", e);
+        return null;
     }
 };
-
-// run program
-main();
