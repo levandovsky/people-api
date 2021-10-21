@@ -29,8 +29,10 @@ const main = async () => {
         // middleware that logs server events to console
         app.use(morgan("dev"));
 
+        // router for json api
         app.use("/people-json", peopleJsonRouter);
 
+        // router for mongo api, adds mongo object to request
         app.use("/people-mongo", (req, _, next) => {
             req.mongo = connection;
             next();
