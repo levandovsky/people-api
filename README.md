@@ -1,4 +1,4 @@
-# Second lecture
+# Lecture 2
 Let's start working on our project!
 
 ## Overview
