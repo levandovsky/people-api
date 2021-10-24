@@ -1,4 +1,4 @@
-# First Lecture 
+# Lecture 1
 Welcome to the first lecture!
 ## Overview
 - What is NodeJS?
