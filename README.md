@@ -1,4 +1,4 @@
-# Third lecture
+# Lecture 3
 Modularize our project and create express server!
 
 ## Overview
