@@ -13,6 +13,6 @@ Split our project into `client` and `server` folders. Put our code in `src` fold
 - [`dotenv`](https://www.npmjs.com/package/dotenv)
 
 ## VSCode extensions
-See the `.vscode` folder to see settings we added.
+Check `settings.json` in `.vscode` folder to see settings we added.
 - [`eslint`](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [`prettier`](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
