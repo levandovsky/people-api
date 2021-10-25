@@ -4,12 +4,12 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import peopleMongoRouter from "./routes/people-mongo.js";
 import peopleJsonRouter from "./routes/people-json.js";
-import { getConnection } from "./database/mongo.js";
+import { getDb } from "./database/mongo.js";
 
 const main = async () => {
     try {
         // connect to mongo
-        const connection = await getConnection();
+        const peopleDb = await getDb("people-api");
 
         // get port number from env, if there is none, use 8080
         const port = process.env.PORT || 8080;
@@ -34,7 +34,12 @@ const main = async () => {
 
         // router for mongo api, adds mongo object to request
         app.use("/people-mongo", (req, _, next) => {
-            req.mongo = connection;
+            req.mongo = {
+                db: peopleDb,
+                collections: {
+                    people: peopleDb.collection("people")
+                }
+            };
             next();
         }, peopleMongoRouter);
 

@@ -1,11 +1,9 @@
 export default class Person {
-    constructor(name, age) {
-        if (!name || !age) {
-            throw new Error("Missing field!");
-        }
-
+    constructor({ name, lastname, age }) {
         this.name = name;
+        this.lastname = lastname;
         this.age = age;
+
         this.createdAt = Date.now();
         this.updatedAt = null;
     }

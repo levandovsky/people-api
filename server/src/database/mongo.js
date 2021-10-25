@@ -7,7 +7,7 @@ const { MONGO_USER, MONGO_PW, MONGO_CLUSTER } = process.env;
 
 const url = `mongodb+srv://${MONGO_USER}:${MONGO_PW}@${MONGO_CLUSTER}/people-api?retryWrites=true&w=majority`;
 
-export const getConnection = async () => {
+export const getDb = async (name) => {
     // try to connect to cluster
     console.log("Connecting to mongo...");
     try {
@@ -16,17 +16,12 @@ export const getConnection = async () => {
         await client.connect();
         console.log("Connected to mongo!");
 
-        const db = client.db("people-api");
-        const collection = db.collection("people");
+        const db = client.db(name);
 
-
-        return {
-            db,
-            collection
-        };
+        return db;
     } catch (e) {
         // if there is an error log it to the console
         console.error("Couldn't connect to mongo, error: ", e);
-        return null;
+        throw new Error(e.message);
     }
 };
