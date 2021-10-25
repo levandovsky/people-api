@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { body, validationResult } from "express-validator";
+import { body, validationResult, param } from "express-validator";
 import Person from "../models/Person.js";
 
 const router = Router();
@@ -21,7 +21,7 @@ router.post(
     "/",
     body(["name", "lastname", "age"], "Missing param").exists(),
     body(["name", "lastname"]).isString(),
-    body("age").isNumeric(),
+    body("age").isFloat({ min: 1, max: 150 }),
     async (req, res) => {
         const {
             mongo: {
@@ -45,15 +45,6 @@ router.post(
 
             res.send(person);
         } catch (e) {
-            if (e.name === "required") {
-                res.status(400).send({
-                    success: false,
-                    error: e.message,
-                });
-
-                return;
-            }
-
             res.status(500).send({
                 error: e.message,
             });
@@ -62,7 +53,7 @@ router.post(
 );
 
 // get all people with name
-router.get("/:name", async (req, res) => {
+router.get("/name/:name", async (req, res) => {
     const { name } = req.params;
     const {
         mongo: {
@@ -74,10 +65,60 @@ router.get("/:name", async (req, res) => {
 
         res.send(found);
     } catch (e) {
-        res.send({
+        res.status(500).send({
             error: e.message,
         });
     }
 });
+
+// get all by age
+router.get(
+    "/age/:age",
+    // validate age field with custom validator, same functionality can
+    // be achieved using 'param("age").isFloat({min: 1, max: 150})'
+    param("age").custom((age) => {
+        // convert to number
+        const _age = Number(age);
+
+        // if value is not a number validation failed
+        if (Number.isNaN(_age)) return false;
+
+        // if value is less or equal to 0
+        // or value is greater than 150 validation failed
+        if (age < 1 || age > 150) return false;
+
+        // otherwise validaiton passed
+        return true;
+    }),
+    async (req, res) => {
+        try {
+            // check validation result
+            const errors = validationResult(req);
+
+            // if there are errors, send them to the client
+            if (!errors.isEmpty()) {
+                return res
+                    .status(400)
+                    .send({ errors: errors.array() });
+            }
+
+            // convert age to number
+            const age = Number(req.params.age);
+
+            const {
+                mongo: {
+                    collections: { people },
+                },
+            } = req;
+
+            const found = await people.find({ age }).toArray();
+            res.send(found);
+        } catch (e) {
+            res.status(500).send({
+                error: e.message,
+            });
+        }
+    }
+);
 
 export default router;
