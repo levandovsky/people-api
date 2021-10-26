@@ -38,7 +38,8 @@ const main = async () => {
                 db: peopleDb,
                 collections: {
                     people: peopleDb.collection("people"),
-                    pets: peopleDb.collection("pets")
+                    pets: peopleDb.collection("pets"),
+                    cars: peopleDb.collection("cars")
                 }
             };
             next();

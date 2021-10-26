@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { body, validationResult, param } from "express-validator";
 import { ObjectId } from "mongodb";
+import Car from "../models/Car.js";
 import Person from "../models/Person.js";
 import Pet from "../models/Pet.js";
+import { validatePersonId } from "../utils/validators.js";
 
 const router = Router();
 
@@ -151,19 +153,7 @@ router.get("/average/age", async (req, res) => {
 // adds a pet to person by id
 router.post(
     "/person/:id/pet",
-    param("id").custom(async (id, { req }) => {
-        const {
-            collections: { people },
-        } = req.mongo;
-
-        try {
-            const found = await people.findOne({ _id: ObjectId(id) });
-            if (!found) return Promise.reject();
-            return Promise.resolve();
-        } catch (e) {
-            console.error(e);
-        }
-    }),
+    param("id").custom(validatePersonId),
     body(["name", "type", "age"], "Field is required").exists(),
     body("age", "Age must be a number").isFloat({ min: 1, max: 100 }),
     async (req, res) => {
@@ -186,7 +176,7 @@ router.post(
             await people.updateOne(
                 { _id: ObjectId(id) },
                 {
-                    $push: { pets: pet._id },
+                    $push: { petIds: pet._id },
                 }
             );
 
@@ -197,7 +187,145 @@ router.post(
         } catch (error) {
             console.error(error);
             res.status(500).send({
-                error: error.message
+                error: error.message,
+            });
+        }
+    }
+);
+
+router.get(
+    "/person/:id/pets",
+    param("id").custom(validatePersonId),
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).send({
+                    errors: errors.array(),
+                });
+            }
+            const {
+                collections: { people },
+            } = req.mongo;
+
+            const { id } = req.params;
+
+            const pipeline = [
+                {
+                    $match: {
+                        _id: ObjectId(id),
+                    },
+                },
+                {
+                    $lookup: {
+                        // collection to get data from
+                        from: "pets",
+                        // create variable ids to use in nested pipeline
+                        let: { ids: "$petIds" },
+                        // create nested pipeline
+                        pipeline: [
+                            {
+                                // match stage
+                                $match: {
+                                    // match by expression
+                                    $expr: {
+                                        // $in checks if pet._id is included in person.petIds,
+                                        // same as ids.includes(_id)
+                                        $in: ["$_id", "$$ids"],
+                                    },
+                                },
+                            },
+                        ],
+                        // field that will hold data from nested pipeline
+                        as: "pets",
+                    },
+                },
+                {
+                    // remove petIds from the result,
+                    // we will have 'pets' array holding 'pet' objects
+                    $unset: ["petIds"],
+                },
+            ];
+
+            const result = await people.aggregate(pipeline).toArray();
+
+            res.send(result);
+        } catch (error) {
+            res.status(500).send({
+                error: error.message,
+            });
+        }
+    }
+);
+
+router.get(
+    "/person/:id/car",
+    param("id").custom(validatePersonId),
+    async (req, res) => {
+        try {
+            const {
+                collections: { people },
+            } = req.mongo;
+            const pipeline = [
+                {
+                    $lookup: {
+                        from: "cars",
+                        localField: "carId",
+                        foreignField: "_id",
+                        as: "car",
+                    },
+                },
+                {
+                    $unset: ["carId"],
+                },
+            ];
+            const result = await people.aggregate(pipeline).toArray();
+            res.send(result);
+        } catch (error) {
+            res.status(500).send({
+                error: error.message,
+            });
+        }
+    }
+);
+
+router.post(
+    "/person/:id/car",
+    param("id").custom(validatePersonId),
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                return res.status(400).send({
+                    errors: errors.array(),
+                });
+            }
+
+            const {
+                collections: { people, cars },
+            } = req.mongo;
+
+            const { id } = req.params;
+
+            const car = new Car({ ...req.body });
+
+            await cars.insertOne(car);
+
+            await people.updateOne(
+                { _id: ObjectId(id) },
+                {
+                    $set: { carId: car._id },
+                }
+            );
+
+            res.send({
+                added: car,
+                updatedPersonId: id,
+            });
+        } catch (error) {
+            res.status(500).send({
+                error: error.message,
             });
         }
     }

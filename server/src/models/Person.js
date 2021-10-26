@@ -1,11 +1,13 @@
-export default class Person {
+import Base from "./Base.js";
+
+export default class Person extends Base {
     constructor({ name, lastname, age }) {
+        super();
+
         this.name = name;
         this.lastname = lastname;
         this.age = age;
-
-        this.createdAt = Date.now();
-        this.updatedAt = null;
-        this.pets = [];
+        this.carId = null;
+        this.petIds = [];
     }
 }
