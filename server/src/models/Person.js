@@ -6,5 +6,6 @@ export default class Person {
 
         this.createdAt = Date.now();
         this.updatedAt = null;
+        this.pets = [];
     }
 }

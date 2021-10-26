@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { body, validationResult, param } from "express-validator";
+import { ObjectId } from "mongodb";
 import Person from "../models/Person.js";
+import Pet from "../models/Pet.js";
 
 const router = Router();
 
@@ -116,6 +118,86 @@ router.get(
         } catch (e) {
             res.status(500).send({
                 error: e.message,
+            });
+        }
+    }
+);
+
+router.get("/average/age", async (req, res) => {
+    try {
+        const {
+            collections: { people },
+        } = req.mongo;
+
+        const pipeline = [
+            {
+                $group: {
+                    _id: "average",
+                    average: { $avg: "$age" },
+                },
+            },
+        ];
+
+        const result = await people.aggregate(pipeline).toArray();
+        res.send(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            error: error.message,
+        });
+    }
+});
+
+// adds a pet to person by id
+router.post(
+    "/person/:id/pet",
+    param("id").custom(async (id, { req }) => {
+        const {
+            collections: { people },
+        } = req.mongo;
+
+        try {
+            const found = await people.findOne({ _id: ObjectId(id) });
+            if (!found) return Promise.reject();
+            return Promise.resolve();
+        } catch (e) {
+            console.error(e);
+        }
+    }),
+    body(["name", "type", "age"], "Field is required").exists(),
+    body("age", "Age must be a number").isFloat({ min: 1, max: 100 }),
+    async (req, res) => {
+        try {
+            // validation
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).send({
+                    errors: errors.array(),
+                });
+            }
+
+            const { id } = req.params;
+            const {
+                collections: { people, pets },
+            } = req.mongo;
+
+            const pet = new Pet({ ...req.body });
+            await pets.insertOne(pet);
+            await people.updateOne(
+                { _id: ObjectId(id) },
+                {
+                    $push: { pets: pet._id },
+                }
+            );
+
+            res.send({
+                addedPet: pet,
+                updatedPersonId: id,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({
+                error: error.message
             });
         }
     }

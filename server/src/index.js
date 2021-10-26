@@ -37,7 +37,8 @@ const main = async () => {
             req.mongo = {
                 db: peopleDb,
                 collections: {
-                    people: peopleDb.collection("people")
+                    people: peopleDb.collection("people"),
+                    pets: peopleDb.collection("pets")
                 }
             };
             next();
