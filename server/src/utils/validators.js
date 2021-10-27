@@ -44,3 +44,15 @@ export const validatePetId = async (id, {req}) => {
         return Promise.reject();
     }
 };
+
+export const personUpdateValidator = (body) => {
+    const allowedFields = ["name", "lastname", "age"];
+
+    const notAllowed = Object.keys(body).some(
+        (key) => !allowedFields.includes(key)
+    );
+
+    if (notAllowed) return false;
+
+    return true;
+};

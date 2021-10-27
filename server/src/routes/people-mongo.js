@@ -4,6 +4,7 @@ import { ObjectId } from "mongodb";
 import Person from "../models/Person.js";
 import { sendError } from "../utils/error.js";
 import {
+    personUpdateValidator,
     validateCarId,
     validatePersonId,
     validatePetId,
@@ -78,17 +79,7 @@ router.delete(
 router.patch(
     "/person/:id",
     param("id").custom(validatePersonId),
-    body(undefined, "Bad model").custom((body) => {
-        const allowedFields = ["name", "lastname", "age"];
-
-        const notAllowed = Object.keys(body).some(
-            (key) => !allowedFields.includes(key)
-        );
-
-        if (notAllowed) return false;
-
-        return true;
-    }),
+    body(undefined, "Bad model").custom(personUpdateValidator),
     async (req, res) => {
         try {
             // check validation result
@@ -105,11 +96,13 @@ router.patch(
 
             const { id } = req.params;
 
+            // create update object
             const update = {
                 ...req.body,
                 updatedAt: Date.now(),
             };
 
+            // update person
             await peopleCollection.updateOne(
                 { _id: ObjectId(id) },
                 {
@@ -117,6 +110,7 @@ router.patch(
                 }
             );
 
+            // send updated id in response
             res.send({
                 updatedPersonId: id,
             });
