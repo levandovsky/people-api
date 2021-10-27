@@ -34,6 +34,9 @@ const main = async () => {
         // router for json api
         app.use("/people-json", peopleJsonRouter);
 
+        // add db to app
+        app.db = peopleDb;
+
         // router for mongo api, adds mongo object to request
         app.use(
             "/people-mongo",

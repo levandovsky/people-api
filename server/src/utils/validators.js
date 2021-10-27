@@ -1,49 +1,29 @@
 import { ObjectId } from "mongodb";
 
-export const validatePersonId = async (id, { req }) => {
-    const {
-        collections: { people },
-    } = req.mongo;
+const validateById = (collectionName) => {
+    return async (id, { req }) => {
+        try {
+            const found = await req.app.db
+                .collection(collectionName)
+                .findOne({
+                    _id: ObjectId(id),
+                });
 
-    try {
-        const found = await people.findOne({ _id: ObjectId(id) });
-        if (!found) return Promise.reject();
-        return Promise.resolve();
-    } catch (e) {
-        console.error("Bad id: ", e);
-        return Promise.reject();
-    }
+            if (!found) return Promise.reject();
+
+            return Promise.resolve();
+        } catch (e) {
+            console.error("Bad id: ", e);
+            return Promise.reject();
+        }
+    };
 };
 
-export const validateCarId = async (id, { req }) => {
-    const {
-        collections: { cars },
-    } = req.mongo;
+export const validatePersonId = validateById("people");
 
-    try {
-        const found = await cars.findOne({ _id: ObjectId(id) });
-        if (!found) return Promise.reject();
-        return Promise.resolve();
-    } catch (e) {
-        console.error("Bad id: ", e);
-        return Promise.reject();
-    }
-};
+export const validateCarId = validateById("cars");
 
-export const validatePetId = async (id, {req}) => {
-    const {
-        collections: { pets },
-    } = req.mongo;
-
-    try {
-        const found = await pets.findOne({ _id: ObjectId(id) });
-        if (!found) return Promise.reject();
-        return Promise.resolve();
-    } catch (e) {
-        console.error("Bad id: ", e);
-        return Promise.reject();
-    }
-};
+export const validatePetId = validateById("pets");
 
 export const personUpdateValidator = (body) => {
     const allowedFields = ["name", "lastname", "age"];

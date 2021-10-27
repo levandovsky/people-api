@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
         const { peopleCollection } = req;
 
         const data = await peopleCollection.find().toArray();
+
         res.send(data);
     } catch (e) {
         sendError(e, res);
