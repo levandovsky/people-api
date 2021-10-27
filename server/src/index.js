@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import peopleMongoRouter from "./routes/people-mongo.js";
 import peopleJsonRouter from "./routes/people-json.js";
 import carsMongoRouter from "./routes/cars-mongo.js";
+import petsMongoRouter from "./routes/pets-mongo.js";
 import { getDb } from "./database/mongo.js";
 
 const main = async () => {
@@ -34,23 +35,33 @@ const main = async () => {
         app.use("/people-json", peopleJsonRouter);
 
         // router for mongo api, adds mongo object to request
-        app.use("/people-mongo", (req, _, next) => {
-            req.mongo = {
-                db: peopleDb,
-                collections: {
-                    people: peopleDb.collection("people"),
-                    pets: peopleDb.collection("pets"),
-                    cars: peopleDb.collection("cars")
-                }
-            };
-            next();
-        }, peopleMongoRouter);
+        app.use(
+            "/people-mongo",
+            (req, _, next) => {
+                req.peopleCollection = peopleDb.collection("people");
+                next();
+            },
+            peopleMongoRouter
+        );
 
         // router for mongo cars collection
-        app.use("/cars-mongo", (req, _, next) => {
-            req.carsCollection = peopleDb.collection("cars");
-            next();
-        }, carsMongoRouter);
+        app.use(
+            "/cars-mongo",
+            (req, _, next) => {
+                req.carsCollection = peopleDb.collection("cars");
+                next();
+            },
+            carsMongoRouter
+        );
+
+        app.use(
+            "/pets-mongo",
+            (req, _, next) => {
+                req.petsCollection = peopleDb.collection("pets");
+                next();
+            },
+            petsMongoRouter
+        );
 
         // start a server on 'port'
         app.listen(port, () => {

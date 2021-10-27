@@ -29,3 +29,18 @@ export const validateCarId = async (id, { req }) => {
         return Promise.reject();
     }
 };
+
+export const validatePetId = async (id, {req}) => {
+    const {
+        collections: { pets },
+    } = req.mongo;
+
+    try {
+        const found = await pets.findOne({ _id: ObjectId(id) });
+        if (!found) return Promise.reject();
+        return Promise.resolve();
+    } catch (e) {
+        console.error("Bad id: ", e);
+        return Promise.reject();
+    }
+};

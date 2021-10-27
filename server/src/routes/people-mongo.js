@@ -2,24 +2,25 @@ import { Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { ObjectId } from "mongodb";
 import Person from "../models/Person.js";
-import Pet from "../models/Pet.js";
+import { sendError } from "../utils/error.js";
 import {
     validateCarId,
     validatePersonId,
+    validatePetId,
 } from "../utils/validators.js";
 
 const router = Router();
 
 // send all people from the database
 router.get("/", async (req, res) => {
-    const {
-        mongo: {
-            collections: { people },
-        },
-    } = req;
+    try {
+        const { peopleCollection } = req;
 
-    const data = await people.find().toArray();
-    res.send(data);
+        const data = await peopleCollection.find().toArray();
+        res.send(data);
+    } catch (e) {
+        sendError(e, res);
+    }
 });
 
 // add a person to database
@@ -29,11 +30,7 @@ router.post(
     body(["name", "lastname"]).isString(),
     body("age").isFloat({ min: 1, max: 150 }),
     async (req, res) => {
-        const {
-            mongo: {
-                collections: { people },
-            },
-        } = req;
+        const { peopleCollection } = req;
 
         try {
             const errors = validationResult(req);
@@ -47,13 +44,11 @@ router.post(
             const person = new Person({ ...req.body });
 
             // insertOne mutates argument and adds _id field to it.
-            await people.insertOne(person);
+            await peopleCollection.insertOne(person);
 
             res.send(person);
         } catch (e) {
-            res.status(500).send({
-                error: e.message,
-            });
+            sendError(e, res);
         }
     }
 );
@@ -63,13 +58,11 @@ router.delete(
     param("id").custom(validatePersonId),
     async (req, res) => {
         try {
-            const {
-                collections: { people },
-            } = req.mongo;
+            const { peopleCollection } = req;
 
             const { id } = req.params;
 
-            await people.deleteOne({
+            await peopleCollection.deleteOne({
                 _id: ObjectId(id),
             });
 
@@ -77,10 +70,7 @@ router.delete(
                 deletedPersonId: id,
             });
         } catch (e) {
-            console.error(e);
-            res.status(500).send({
-                error: e.message,
-            });
+            sendError(e, res);
         }
     }
 );
@@ -111,9 +101,7 @@ router.patch(
                     .send({ errors: errors.array() });
             }
 
-            const {
-                collections: { people },
-            } = req.mongo;
+            const { peopleCollection } = req;
 
             const { id } = req.params;
 
@@ -122,7 +110,7 @@ router.patch(
                 updatedAt: Date.now(),
             };
 
-            await people.updateOne(
+            await peopleCollection.updateOne(
                 { _id: ObjectId(id) },
                 {
                     $set: update,
@@ -133,10 +121,7 @@ router.patch(
                 updatedPersonId: id,
             });
         } catch (e) {
-            console.error(e);
-            res.status(500).send({
-                error: e.message,
-            });
+            sendError(e, res);
         }
     }
 );
@@ -144,19 +129,13 @@ router.patch(
 // get all people with name
 router.get("/name/:name", async (req, res) => {
     const { name } = req.params;
-    const {
-        mongo: {
-            collections: { people },
-        },
-    } = req;
+    const { peopleCollection } = req;
     try {
-        const found = await people.find({ name }).toArray();
+        const found = await peopleCollection.find({ name }).toArray();
 
         res.send(found);
     } catch (e) {
-        res.status(500).send({
-            error: e.message,
-        });
+        sendError(e, res);
     }
 });
 
@@ -194,27 +173,22 @@ router.get(
             // convert age to number
             const age = Number(req.params.age);
 
-            const {
-                mongo: {
-                    collections: { people },
-                },
-            } = req;
+            const { peopleCollection } = req;
 
-            const found = await people.find({ age }).toArray();
+            const found = await peopleCollection
+                .find({ age })
+                .toArray();
+
             res.send(found);
         } catch (e) {
-            res.status(500).send({
-                error: e.message,
-            });
+            sendError(e, res);
         }
     }
 );
 
 router.get("/average/age", async (req, res) => {
     try {
-        const {
-            collections: { people },
-        } = req.mongo;
+        const { peopleCollection } = req;
 
         const pipeline = [
             {
@@ -225,7 +199,10 @@ router.get("/average/age", async (req, res) => {
             },
         ];
 
-        const result = await people.aggregate(pipeline).toArray();
+        const result = await peopleCollection
+            .aggregate(pipeline)
+            .toArray();
+
         res.send(result);
     } catch (error) {
         console.error(error);
@@ -237,10 +214,9 @@ router.get("/average/age", async (req, res) => {
 
 // adds a pet to person by id
 router.post(
-    "/person/:id/pet",
+    "/person/:id/pet/:petId",
     param("id").custom(validatePersonId),
-    body(["name", "type", "age"], "Field is required").exists(),
-    body("age", "Age must be a number").isFloat({ min: 1, max: 100 }),
+    param("petId").custom(validatePetId),
     async (req, res) => {
         try {
             // validation
@@ -251,29 +227,22 @@ router.post(
                 });
             }
 
-            const { id } = req.params;
-            const {
-                collections: { people, pets },
-            } = req.mongo;
+            const { id, petId } = req.params;
+            const { peopleCollection } = req;
 
-            const pet = new Pet({ ...req.body });
-            await pets.insertOne(pet);
-            await people.updateOne(
+            await peopleCollection.updateOne(
                 { _id: ObjectId(id) },
                 {
-                    $push: { petIds: pet._id },
+                    $push: { petIds: ObjectId(petId) },
                 }
             );
 
             res.send({
-                addedPet: pet,
+                addedPetId: petId,
                 updatedPersonId: id,
             });
         } catch (error) {
-            console.error(error);
-            res.status(500).send({
-                error: error.message,
-            });
+            sendError(error, res);
         }
     }
 );
@@ -289,9 +258,7 @@ router.get(
                     errors: errors.array(),
                 });
             }
-            const {
-                collections: { people },
-            } = req.mongo;
+            const { peopleCollection } = req;
 
             const { id } = req.params;
 
@@ -332,13 +299,13 @@ router.get(
                 },
             ];
 
-            const result = await people.aggregate(pipeline).toArray();
+            const result = await peopleCollection
+                .aggregate(pipeline)
+                .toArray();
 
             res.send(result);
         } catch (error) {
-            res.status(500).send({
-                error: error.message,
-            });
+            sendError(error, res);
         }
     }
 );
@@ -348,9 +315,7 @@ router.get(
     param("id").custom(validatePersonId),
     async (req, res) => {
         try {
-            const {
-                collections: { people },
-            } = req.mongo;
+            const { peopleCollection } = req;
             const pipeline = [
                 {
                     $lookup: {
@@ -364,12 +329,14 @@ router.get(
                     $unset: ["carId"],
                 },
             ];
-            const result = await people.aggregate(pipeline).toArray();
+
+            const result = await peopleCollection
+                .aggregate(pipeline)
+                .toArray();
+
             res.send(result);
         } catch (error) {
-            res.status(500).send({
-                error: error.message,
-            });
+            sendError(error, res);
         }
     }
 );
@@ -388,13 +355,11 @@ router.post(
                 });
             }
 
-            const {
-                collections: { people },
-            } = req.mongo;
+            const { peopleCollection } = req;
 
             const { id, carId } = req.params;
 
-            await people.updateOne(
+            await peopleCollection.updateOne(
                 { _id: ObjectId(id) },
                 {
                     $set: { carId: ObjectId(carId) },
@@ -406,9 +371,7 @@ router.post(
                 newCarId: carId,
             });
         } catch (error) {
-            res.status(500).send({
-                error: error.message,
-            });
+            sendError(error, res);
         }
     }
 );
