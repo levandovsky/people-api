@@ -5,7 +5,7 @@ import Person from "../models/Person.js";
 import Pet from "../models/Pet.js";
 import {
     validateCarId,
-    validatePersonId
+    validatePersonId,
 } from "../utils/validators.js";
 
 const router = Router();
@@ -51,6 +51,87 @@ router.post(
 
             res.send(person);
         } catch (e) {
+            res.status(500).send({
+                error: e.message,
+            });
+        }
+    }
+);
+
+router.delete(
+    "/person/:id",
+    param("id").custom(validatePersonId),
+    async (req, res) => {
+        try {
+            const {
+                collections: { people },
+            } = req.mongo;
+
+            const { id } = req.params;
+
+            await people.deleteOne({
+                _id: ObjectId(id),
+            });
+
+            res.send({
+                deletedPersonId: id,
+            });
+        } catch (e) {
+            console.error(e);
+            res.status(500).send({
+                error: e.message,
+            });
+        }
+    }
+);
+
+router.patch(
+    "/person/:id",
+    param("id").custom(validatePersonId),
+    body(undefined, "Bad model").custom(
+        (body) => {
+            const allowedFields = ["name", "lastname", "age"];
+
+            const notAllowed = Object.keys(body).some(
+                (key) => !allowedFields.includes(key)
+            );
+
+            if (notAllowed) return false;
+
+            return true;
+        }
+    ),
+    async (req, res) => {
+        try {
+            // check validation result
+            const errors = validationResult(req);
+
+            // if there are errors, send them to the client
+            if (!errors.isEmpty()) {
+                return res
+                    .status(400)
+                    .send({ errors: errors.array() });
+            }
+
+            const {
+                collections: { people },
+            } = req.mongo;
+
+            const { id } = req.params;
+
+            await people.updateOne(
+                { _id: ObjectId(id) },
+                {
+                    $set: { ...req.body, updatedAt: Date.now() },
+                }
+            );
+
+            res.send({
+                updatedPersonId: id,
+            });
+
+        } catch (e) {
+            console.error(e);
             res.status(500).send({
                 error: e.message,
             });
@@ -320,7 +401,7 @@ router.post(
 
             res.send({
                 updatedPersonId: id,
-                newCarId: carId
+                newCarId: carId,
             });
         } catch (error) {
             res.status(500).send({
