@@ -14,3 +14,18 @@ export const validatePersonId = async (id, { req }) => {
         return Promise.reject();
     }
 };
+
+export const validateCarId = async (id, { req }) => {
+    const {
+        collections: { cars },
+    } = req.mongo;
+
+    try {
+        const found = await cars.findOne({ _id: ObjectId(id) });
+        if (!found) return Promise.reject();
+        return Promise.resolve();
+    } catch (e) {
+        console.error("Bad id: ", e);
+        return Promise.reject();
+    }
+};

@@ -1,10 +1,12 @@
 import { Router } from "express";
-import { body, validationResult, param } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import { ObjectId } from "mongodb";
-import Car from "../models/Car.js";
 import Person from "../models/Person.js";
 import Pet from "../models/Pet.js";
-import { validatePersonId } from "../utils/validators.js";
+import {
+    validateCarId,
+    validatePersonId
+} from "../utils/validators.js";
 
 const router = Router();
 
@@ -290,8 +292,9 @@ router.get(
 );
 
 router.post(
-    "/person/:id/car",
+    "/person/:id/car/:carId",
     param("id").custom(validatePersonId),
+    param("carId").custom(validateCarId),
     async (req, res) => {
         try {
             const errors = validationResult(req);
@@ -303,25 +306,21 @@ router.post(
             }
 
             const {
-                collections: { people, cars },
+                collections: { people },
             } = req.mongo;
 
-            const { id } = req.params;
-
-            const car = new Car({ ...req.body });
-
-            await cars.insertOne(car);
+            const { id, carId } = req.params;
 
             await people.updateOne(
                 { _id: ObjectId(id) },
                 {
-                    $set: { carId: car._id },
+                    $set: { carId: ObjectId(carId) },
                 }
             );
 
             res.send({
-                added: car,
                 updatedPersonId: id,
+                newCarId: carId
             });
         } catch (error) {
             res.status(500).send({

@@ -4,6 +4,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import peopleMongoRouter from "./routes/people-mongo.js";
 import peopleJsonRouter from "./routes/people-json.js";
+import carsMongoRouter from "./routes/cars-mongo.js";
 import { getDb } from "./database/mongo.js";
 
 const main = async () => {
@@ -44,6 +45,12 @@ const main = async () => {
             };
             next();
         }, peopleMongoRouter);
+
+        // router for mongo cars collection
+        app.use("/cars-mongo", (req, _, next) => {
+            req.carsCollection = peopleDb.collection("cars");
+            next();
+        }, carsMongoRouter);
 
         // start a server on 'port'
         app.listen(port, () => {
