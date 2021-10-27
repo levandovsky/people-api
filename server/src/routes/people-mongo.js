@@ -88,19 +88,17 @@ router.delete(
 router.patch(
     "/person/:id",
     param("id").custom(validatePersonId),
-    body(undefined, "Bad model").custom(
-        (body) => {
-            const allowedFields = ["name", "lastname", "age"];
+    body(undefined, "Bad model").custom((body) => {
+        const allowedFields = ["name", "lastname", "age"];
 
-            const notAllowed = Object.keys(body).some(
-                (key) => !allowedFields.includes(key)
-            );
+        const notAllowed = Object.keys(body).some(
+            (key) => !allowedFields.includes(key)
+        );
 
-            if (notAllowed) return false;
+        if (notAllowed) return false;
 
-            return true;
-        }
-    ),
+        return true;
+    }),
     async (req, res) => {
         try {
             // check validation result
@@ -119,17 +117,21 @@ router.patch(
 
             const { id } = req.params;
 
+            const update = {
+                ...req.body,
+                updatedAt: Date.now(),
+            };
+
             await people.updateOne(
                 { _id: ObjectId(id) },
                 {
-                    $set: { ...req.body, updatedAt: Date.now() },
+                    $set: update,
                 }
             );
 
             res.send({
                 updatedPersonId: id,
             });
-
         } catch (e) {
             console.error(e);
             res.status(500).send({
