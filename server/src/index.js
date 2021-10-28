@@ -11,7 +11,7 @@ import { getDb } from "./database/mongo.js";
 const main = async () => {
     try {
         // connect to mongo
-        const peopleDb = await getDb("people-api");
+        const {db: peopleDb, client} = await getDb("people-api");
 
         // get port number from env, if there is none, use 8080
         const port = process.env.PORT || 8080;
@@ -69,6 +69,10 @@ const main = async () => {
         // start a server on 'port'
         app.listen(port, () => {
             console.log(`App running on: http://localhost:${port}/`);
+        });
+
+        process.on("exit", async () => {
+            await client.close();
         });
     } catch (e) {
         console.error(e);

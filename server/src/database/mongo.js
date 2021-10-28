@@ -13,12 +13,15 @@ export const getDb = async (name) => {
     try {
         // create mongo connection
         const client = new MongoClient(url);
-        await client.connect();
         console.log("Connected to mongo!");
 
+        await client.connect();
         const db = client.db(name);
 
-        return db;
+        return {
+            client,
+            db
+        };
     } catch (e) {
         // if there is an error log it to the console
         console.error("Couldn't connect to mongo, error: ", e);

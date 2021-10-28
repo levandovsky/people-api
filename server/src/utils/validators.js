@@ -2,6 +2,8 @@ import { ObjectId } from "mongodb";
 
 const validateById = (collectionName) => {
     return async (id, { req }) => {
+        if (!id) return Promise.reject();
+
         try {
             const found = await req.app.db
                 .collection(collectionName)

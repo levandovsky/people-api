@@ -1,11 +1,10 @@
+import Person from "../models/Person.js";
 import { Router } from "express";
 import { body, param, validationResult } from "express-validator";
 import { ObjectId } from "mongodb";
-import Person from "../models/Person.js";
 import { sendError } from "../utils/error.js";
 import {
     personUpdateValidator,
-    validateCarId,
     validatePersonId,
     validatePetId,
 } from "../utils/validators.js";
@@ -16,9 +15,7 @@ const router = Router();
 router.get("/", async (req, res) => {
     try {
         const { peopleCollection } = req;
-
         const data = await peopleCollection.find().toArray();
-
         res.send(data);
     } catch (e) {
         sendError(e, res);
@@ -265,33 +262,12 @@ router.get(
                 },
                 {
                     $lookup: {
-                        // collection to get data from
                         from: "pets",
-                        // create variable ids to use in nested pipeline
-                        let: { ids: "$petIds" },
-                        // create nested pipeline
-                        pipeline: [
-                            {
-                                // match stage
-                                $match: {
-                                    // match by expression
-                                    $expr: {
-                                        // $in checks if pet._id is included in person.petIds,
-                                        // same as ids.includes(_id)
-                                        $in: ["$_id", "$$ids"],
-                                    },
-                                },
-                            },
-                        ],
-                        // field that will hold data from nested pipeline
-                        as: "pets",
+                        localField: "_id",
+                        foreignField: "ownerId",
+                        as: "pets"
                     },
-                },
-                {
-                    // remove petIds from the result,
-                    // we will have 'pets' array holding 'pet' objects
-                    $unset: ["petIds"],
-                },
+                }
             ];
 
             const result = await peopleCollection
@@ -315,8 +291,8 @@ router.get(
                 {
                     $lookup: {
                         from: "cars",
-                        localField: "carId",
-                        foreignField: "_id",
+                        localField: "_id",
+                        foreignField: "ownerId",
                         as: "car",
                     },
                 },
@@ -336,39 +312,6 @@ router.get(
     }
 );
 
-router.post(
-    "/person/:id/car/:carId",
-    param("id").custom(validatePersonId),
-    param("carId").custom(validateCarId),
-    async (req, res) => {
-        try {
-            const errors = validationResult(req);
 
-            if (!errors.isEmpty()) {
-                return res.status(400).send({
-                    errors: errors.array(),
-                });
-            }
-
-            const { peopleCollection } = req;
-
-            const { id, carId } = req.params;
-
-            await peopleCollection.updateOne(
-                { _id: ObjectId(id) },
-                {
-                    $set: { carId: ObjectId(carId) },
-                }
-            );
-
-            res.send({
-                updatedPersonId: id,
-                newCarId: carId,
-            });
-        } catch (error) {
-            sendError(error, res);
-        }
-    }
-);
 
 export default router;

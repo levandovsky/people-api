@@ -7,7 +7,5 @@ export default class Person extends Base {
         this.name = name;
         this.lastname = lastname;
         this.age = age;
-        this.carId = null;
-        this.petIds = [];
     }
 }
