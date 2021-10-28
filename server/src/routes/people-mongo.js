@@ -5,8 +5,7 @@ import { ObjectId } from "mongodb";
 import { sendError } from "../utils/error.js";
 import {
     personUpdateValidator,
-    validatePersonId,
-    validatePetId,
+    validatePersonId
 } from "../utils/validators.js";
 
 const router = Router();
@@ -203,41 +202,6 @@ router.get("/average/age", async (req, res) => {
         });
     }
 });
-
-// adds a pet to person by id
-router.post(
-    "/person/:id/pet/:petId",
-    param("id").custom(validatePersonId),
-    param("petId").custom(validatePetId),
-    async (req, res) => {
-        try {
-            // validation
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return res.status(400).send({
-                    errors: errors.array(),
-                });
-            }
-
-            const { id, petId } = req.params;
-            const { peopleCollection } = req;
-
-            await peopleCollection.updateOne(
-                { _id: ObjectId(id) },
-                {
-                    $push: { petIds: ObjectId(petId) },
-                }
-            );
-
-            res.send({
-                addedPetId: petId,
-                updatedPersonId: id,
-            });
-        } catch (error) {
-            sendError(error, res);
-        }
-    }
-);
 
 router.get(
     "/person/:id/pets",
