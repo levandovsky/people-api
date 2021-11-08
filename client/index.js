@@ -1,27 +1,28 @@
 const form = document.getElementById("form");
 const list = document.getElementById("list");
-const url = "http://localhost:8080/people";
+
+const url = "http://localhost:8080/people-mongo/";
 
 const addPerson = async (name, age) => {
     const response = await fetch(url, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
         body: JSON.stringify({
             name,
-            age
-        })
+            age,
+        }),
     });
 
     const data = await response.json();
 
     if (data.error) {
-        throw new Error(data.error)
+        throw new Error(data.error);
     }
 
     return data.added;
-}
+};
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -33,20 +34,20 @@ form.addEventListener("submit", async (e) => {
     const li = document.createElement("li");
     li.innerHTML = `Added: ${added.name}`;
     list.appendChild(li);
-})
+});
 
 const main = async () => {
-    const response = await fetch("http://localhost:8080/people", {
-        method: "GET"
+    const response = await fetch(url, {
+        method: "GET",
     });
 
     const people = await response.json();
-    
+
     for (const {name, age} of people) {
         const element = document.createElement("li");
         element.innerHTML = `Name: ${name}. Age: ${age}`;
-        list.appendChild(element)
+        list.appendChild(element);
     }
-}
+};
 
 main();

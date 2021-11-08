@@ -33,4 +33,26 @@ router.post(
     }
 );
 
+router.get("/with-owner", async (req, res) => {
+    try {
+        const { petsCollection } = req;
+        const pipeline = [
+            {
+                $lookup: {
+                    from: "people",
+                    localField: "ownerId",
+                    foreignField: "_id",
+                    as: "owner",
+                },
+            },
+        ];
+
+        const data = await petsCollection.aggregate(pipeline).toArray();
+
+        res.send(data);
+    } catch (error) {
+        sendError(error, res);
+    }
+});
+
 export default router;

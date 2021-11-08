@@ -1,30 +1,29 @@
+import chalk from "chalk";
 import { MongoClient } from "mongodb";
-import dotenv from "dotenv";
-dotenv.config();
+export const createClient = async (config) => {
+    if (Object.values(config).some((value) => !value)) {
+        throw new Error("Missing config field!");
+    }
 
-// take user, password and cluster variables fields from env
-const { MONGO_USER, MONGO_PW, MONGO_CLUSTER } = process.env;
+    const { user, pw, cluster, db } = config;
+    const url = `mongodb+srv://${user}:${pw}@${cluster}/${db}?retryWrites=true&w=majority`;
 
-const url = `mongodb+srv://${MONGO_USER}:${MONGO_PW}@${MONGO_CLUSTER}/people-api?retryWrites=true&w=majority`;
-
-export const getDb = async (name) => {
-    // try to connect to cluster
-    console.log("Connecting to mongo...");
     try {
-        // create mongo connection
         const client = new MongoClient(url);
-        console.log("Connected to mongo!");
+
+        console.log(
+            `${chalk.green("Mongo:")} Connecting to ${chalk.blue(
+                config.db
+            )} db on ${chalk.blue(config.cluster)}`
+        );
 
         await client.connect();
-        const db = client.db(name);
 
-        return {
-            client,
-            db
-        };
+        console.log(`${chalk.green("Mongo:")} Connected!`);
+
+        return client;
     } catch (e) {
-        // if there is an error log it to the console
-        console.error("Couldn't connect to mongo, error: ", e);
-        throw new Error(e.message);
+        console.log(chalk.red("Error connecting to mongo!", e));
+        throw e;
     }
 };
