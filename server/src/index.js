@@ -6,18 +6,48 @@ import peopleMongoRouter from "./routes/people-mongo.js";
 import peopleJsonRouter from "./routes/people-json.js";
 import carsMongoRouter from "./routes/cars-mongo.js";
 import petsMongoRouter from "./routes/pets-mongo.js";
-import { getDb } from "./database/mongo.js";
+import peopleMysqlRouter from "./routes/people-sql.js";
+import { createClient } from "./database/mongo.js";
+import mysql from "mysql";
+
+// configure dotenv package
+dotenv.config();
 
 const main = async () => {
     try {
+        const {
+            MONGO_USER,
+            MONGO_PW,
+            MONGO_CLUSTER,
+            PORT = 5000,
+            MYSQL_HOST,
+            MYSQL_PORT,
+            MYSQL_USER,
+            MYSQL_PW,
+        } = process.env;
+
         // connect to mongo
-        const {db: peopleDb, client} = await getDb("people-api");
+        const client = await createClient({
+            user: MONGO_USER,
+            pw: MONGO_PW,
+            cluster: MONGO_CLUSTER,
+            db: "people-api",
+        });
 
-        // get port number from env, if there is none, use 8080
-        const port = process.env.PORT || 8080;
+        // get 'people-api' database from client
+        const peopleDb = client.db();
 
-        // configure dotenv package
-        dotenv.config();
+        const connection = mysql.createConnection({
+            host: MYSQL_HOST,
+            port: MYSQL_PORT,
+            user: MYSQL_USER,
+            password: MYSQL_PW,
+            database: "people-api",
+        });
+
+        connection.connect(() => {
+            console.log("mysql connected");
+        });
 
         // create express application
         const app = express();
@@ -36,6 +66,9 @@ const main = async () => {
 
         // add db to app
         app.db = peopleDb;
+
+        // add mysql connection to app
+        app.mysql = connection;
 
         // router for mongo api, adds mongo object to request
         app.use(
@@ -66,13 +99,18 @@ const main = async () => {
             petsMongoRouter
         );
 
+
+        // router for mysql api
+        app.use("/people-mysql", peopleMysqlRouter);
+
         // start a server on 'port'
-        app.listen(port, () => {
-            console.log(`App running on: http://localhost:${port}/`);
+        app.listen(PORT, () => {
+            console.log(`App running on: http://localhost:${PORT}/`);
         });
 
         process.on("exit", async () => {
             await client.close();
+            connection.end();
         });
     } catch (e) {
         console.error(e);
