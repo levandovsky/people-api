@@ -8,7 +8,7 @@ import carsMongoRouter from "./routes/cars-mongo.js";
 import petsMongoRouter from "./routes/pets-mongo.js";
 import peopleMysqlRouter from "./routes/people-sql.js";
 import { createClient } from "./database/mongo.js";
-import mysql from "mysql";
+import mysql from "mysql2";
 
 // configure dotenv package
 dotenv.config();

@@ -5,12 +5,12 @@ const router = Router();
 
 router.get("/", (req, res) => {
     const { mysql } = req.app;
-
-    mysql.query("SELECT * FROM people;", (error, results) => {
-        if (error) sendError(error);
-
-        res.send(results);
-    });
+    try {
+        const [rows] = mysql.execute("SELECT * FROM people;");
+        res.send(rows);
+    } catch (error) {
+        sendError(error, res);
+    }
 });
 
 export default router;
