@@ -68,7 +68,7 @@ const main = async () => {
         app.db = peopleDb;
 
         // add mysql connection to app
-        app.mysql = connection;
+        app.mysql = connection.promise();
 
         // router for mongo api, adds mongo object to request
         app.use(
