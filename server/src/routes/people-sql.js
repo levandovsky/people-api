@@ -74,7 +74,7 @@ router.get("/person/:id", async (req, res) => {
 
         if (!person) {
             return res.status(404).send({
-                message: `No person with id: ${id}`,
+                person: null
             });
         }
 
