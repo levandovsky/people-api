@@ -5,8 +5,8 @@ import { ObjectId } from "mongodb";
 import { sendError } from "../utils/error.js";
 import {
     personUpdateValidator,
-    validatePersonId
-} from "../utils/validators.js";
+    validatePersonId,
+} from "../utils/validatorsMongo.js";
 import { validateErrorsMiddleware } from "../utils/validateErrorsMiddleware.js";
 
 const router = Router();
@@ -197,9 +197,9 @@ router.get(
                         from: "pets",
                         localField: "_id",
                         foreignField: "ownerId",
-                        as: "pets"
+                        as: "pets",
                     },
-                }
+                },
             ];
 
             const result = await peopleCollection
@@ -243,7 +243,5 @@ router.get(
         }
     }
 );
-
-
 
 export default router;

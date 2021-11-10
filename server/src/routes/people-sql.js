@@ -1,13 +1,17 @@
 import { Router } from "express";
 import { sendError } from "../utils/error.js";
 import { body, query } from "express-validator";
-import { sortValidator } from "../utils/validators.js";
+import { sortValidator } from "../utils/validatorsSql.js";
 import { validateErrorsMiddleware } from "../utils/validateErrorsMiddleware.js";
+
 const router = Router();
 
 router.get(
     "/",
-    query("sort", "Invalid sort direction. Allowed values: ASC, DESC").custom(sortValidator),
+    query(
+        "sort",
+        "Invalid sort direction. Allowed values: ASC, DESC"
+    ).custom(sortValidator),
     validateErrorsMiddleware,
     async (req, res) => {
         const { mysql } = req.app;
@@ -23,9 +27,8 @@ router.get(
             res.send({
                 people,
                 limit: Number(limit),
-                sort
+                sort,
             });
-
         } catch (error) {
             sendError(error, res);
         }
@@ -56,5 +59,74 @@ router.post(
         }
     }
 );
+
+router.put(
+    "/person/:id",
+    body(["name", "lastname", "age"], "Missing param").exists(),
+    body(["name", "lastname"]).isString(),
+    body("age").isFloat({ min: 1, max: 150 }),
+    validateErrorsMiddleware,
+    async (req, res) => {
+        const { mysql } = req.app;
+        const { name, lastname, age } = req.body;
+        const id = Number(req.params.id);
+
+        try {
+            const [{ insertId }] = await mysql.query(
+                `
+                UPDATE people
+                SET name = '${name}', lastname = '${lastname}', age = '${age}'
+                WHERE id=${id};
+                `
+            );
+
+            if (!insertId) {
+                return res.status(404).send({
+                    error: `No person with id: ${id}`,
+                });
+            }
+
+            res.send({
+                updated: {
+                    id,
+                    ...req.body,
+                },
+            });
+        } catch (error) {
+            if (error.code === "ER_BAD_FIELD_ERROR") {
+                return sendError(new Error("Bad person id"), res);
+            }
+
+            sendError(error, res);
+        }
+    }
+);
+
+router.delete("/person/:id", async (req, res) => {
+    const { mysql } = req.app;
+    const id = Number(req.params.id);
+
+    try {
+        const [{ insertId }] = await mysql.query(
+            `DELETE FROM people WHERE id=${id};`
+        );
+
+        if (!insertId) {
+            return res.status(404).send({
+                error: `No person with id: ${id}`,
+            });
+        }
+
+        res.send({
+            deletedId: id,
+        });
+    } catch (error) {
+        if (error.code === "ER_BAD_FIELD_ERROR") {
+            return sendError(new Error("Bad person id"), res);
+        }
+
+        sendError(error, res);
+    }
+});
 
 export default router;

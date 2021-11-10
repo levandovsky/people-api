@@ -2,7 +2,7 @@ import { Router } from "express";
 import { body } from "express-validator";
 import Pet from "../models/Pet.js";
 import { sendError } from "../utils/error.js";
-import { validatePersonId } from "../utils/validators.js";
+import { validatePersonId } from "../utils/validatorsMongo.js";
 
 const router = Router();
 
