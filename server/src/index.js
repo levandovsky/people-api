@@ -8,7 +8,7 @@ import carsMongoRouter from "./routes/cars-mongo.js";
 import petsMongoRouter from "./routes/pets-mongo.js";
 import peopleMysqlRouter from "./routes/people-sql.js";
 import { createClient } from "./database/mongo.js";
-import mysql from "mysql2";
+import mysql from "mysql2/promise";
 
 // configure dotenv package
 dotenv.config();
@@ -37,7 +37,7 @@ const main = async () => {
         // get 'people-api' database from client
         const peopleDb = client.db();
 
-        const connection = mysql.createConnection({
+        const connection = await mysql.createConnection({
             host: MYSQL_HOST,
             port: MYSQL_PORT,
             user: MYSQL_USER,
@@ -45,9 +45,14 @@ const main = async () => {
             database: "people-api",
         });
 
-        connection.connect(() => {
-            console.log("mysql connected");
-        });
+        await connection.query(`
+        CREATE TABLE IF NOT EXISTS people (
+            id INTEGER AUTO_INCREMENT NOT NULL,
+            name VARCHAR(20) NOT NULL,
+            lastname VARCHAR(50) NOT NULL,
+            age INTEGER NOT NULL,
+            PRIMARY KEY (id)
+        )`);
 
         // create express application
         const app = express();
@@ -68,7 +73,7 @@ const main = async () => {
         app.db = peopleDb;
 
         // add mysql connection to app
-        app.mysql = connection.promise();
+        app.mysql = connection;
 
         // router for mongo api, adds mongo object to request
         app.use(
@@ -98,7 +103,6 @@ const main = async () => {
             },
             petsMongoRouter
         );
-
 
         // router for mysql api
         app.use("/people-mysql", peopleMysqlRouter);

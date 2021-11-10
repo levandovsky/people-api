@@ -18,11 +18,11 @@ router.get(
         const { limit = 5, sort = "ASC" } = req.query;
 
         try {
-            const [people] = await mysql.query(
-                `SELECT * FROM people
-                ORDER BY age ${sort}
-                LIMIT ${Number(limit)}`
-            );
+            const query = `SELECT * FROM people
+            ORDER BY age ${sort}
+            LIMIT ${limit}`;
+
+            const [people] = await mysql.query(query);
 
             res.send({
                 people,
@@ -60,6 +60,32 @@ router.post(
     }
 );
 
+router.get("/person/:id", async (req, res) => {
+    const { mysql } = req.app;
+    const id = req.params.id;
+
+    try {
+        const [results] = await mysql.query(
+            "SELECT * FROM people WHERE id=?",
+            [id]
+        );
+
+        const [person] = results;
+
+        if (!person) {
+            return res.status(404).send({
+                message: `No person with id: ${id}`,
+            });
+        }
+
+        res.send({
+            person,
+        });
+    } catch (error) {
+        sendError(error, res);
+    }
+});
+
 router.put(
     "/person/:id",
     body(["name", "lastname", "age"], "Missing param").exists(),
@@ -72,15 +98,16 @@ router.put(
         const id = Number(req.params.id);
 
         try {
-            const [{ insertId }] = await mysql.query(
+            const [{ affectedRows }] = await mysql.query(
                 `
                 UPDATE people
-                SET name = '${name}', lastname = '${lastname}', age = '${age}'
-                WHERE id=${id};
-                `
+                SET name = ?, lastname = ?, age = ?
+                WHERE id= ?;
+                `,
+                [name, lastname, age, id]
             );
 
-            if (!insertId) {
+            if (!affectedRows) {
                 return res.status(404).send({
                     error: `No person with id: ${id}`,
                 });
