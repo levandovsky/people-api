@@ -134,11 +134,11 @@ router.delete("/person/:id", async (req, res) => {
     const id = Number(req.params.id);
 
     try {
-        const [{ insertId }] = await mysql.query(
+        const [{ affectedRows }] = await mysql.query(
             `DELETE FROM people WHERE id=${id};`
         );
 
-        if (!insertId) {
+        if (!affectedRows) {
             return res.status(404).send({
                 error: `No person with id: ${id}`,
             });
