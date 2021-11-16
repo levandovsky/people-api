@@ -16,13 +16,14 @@ router.get(
     async (req, res) => {
         const { mysql } = req.app;
         const { limit = 5, sort = "ASC" } = req.query;
+        const fields = ["name", "lastname", "age"];
 
         try {
-            const query = `SELECT * FROM people
-            ORDER BY age ${sort}
+            const queryString = `SELECT ?? FROM ??
+            ORDER BY name ${sort}
             LIMIT ${limit}`;
 
-            const [people] = await mysql.query(query);
+            const [people] = await mysql.query(queryString, [fields, "people"]);
 
             res.send({
                 people,
@@ -74,7 +75,7 @@ router.get("/person/:id", async (req, res) => {
 
         if (!person) {
             return res.status(404).send({
-                person: null
+                person: null,
             });
         }
 
@@ -100,11 +101,11 @@ router.put(
         try {
             const [{ affectedRows }] = await mysql.query(
                 `
-                UPDATE people
+                UPDATE ??
                 SET name = ?, lastname = ?, age = ?
                 WHERE id= ?;
                 `,
-                [name, lastname, age, id]
+                ["people", name, lastname, age, id]
             );
 
             if (!affectedRows) {
