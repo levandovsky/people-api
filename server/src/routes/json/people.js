@@ -1,5 +1,5 @@
 import {Router} from "express";
-import PeopleDatabase from "../database/PeopleDatabase.js";
+import PeopleDatabase from "../../database/PeopleDatabase.js";
 const router = new Router();
 
 // create people database object

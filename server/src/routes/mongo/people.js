@@ -1,13 +1,13 @@
-import Person from "../models/Person.js";
+import Person from "../../models/Person.js";
 import { Router } from "express";
 import { body, param } from "express-validator";
 import { ObjectId } from "mongodb";
-import { sendError } from "../utils/error.js";
+import { sendError } from "../../utils/error.js";
 import {
     personUpdateValidator,
     validatePersonId,
-} from "../utils/validatorsMongo.js";
-import { validateErrorsMiddleware } from "../utils/validateErrorsMiddleware.js";
+} from "../../utils/validatorsMongo.js";
+import { validateErrorsMiddleware } from "../../utils/validateErrorsMiddleware.js";
 
 const router = Router();
 

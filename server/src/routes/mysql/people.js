@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { sendError } from "../utils/error.js";
+import { sendError } from "../../utils/error.js";
 import { body, query } from "express-validator";
-import { sortValidator } from "../utils/validatorsSql.js";
-import { validateErrorsMiddleware } from "../utils/validateErrorsMiddleware.js";
+import { sortValidator } from "../../utils/validatorsSql.js";
+import { validateErrorsMiddleware } from "../../utils/validateErrorsMiddleware.js";
 
 const router = Router();
 

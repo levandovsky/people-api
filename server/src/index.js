@@ -2,11 +2,12 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import dotenv from "dotenv";
-import peopleMongoRouter from "./routes/people-mongo.js";
-import peopleJsonRouter from "./routes/people-json.js";
-import carsMongoRouter from "./routes/cars-mongo.js";
-import petsMongoRouter from "./routes/pets-mongo.js";
-import peopleMysqlRouter from "./routes/people-sql.js";
+import peopleMongoRouter from "./routes/mongo/people.js";
+import peopleJsonRouter from "./routes/json/people.js";
+import carsMongoRouter from "./routes/mongo/cars.js";
+import petsMongoRouter from "./routes/mongo/pets.js";
+import peopleMysqlRouter from "./routes/mysql/people.js";
+import carsMysqlRouter from "./routes/mysql/cars.js";
 import { createClient } from "./database/mongo.js";
 import mysql from "mysql2/promise";
 
@@ -14,18 +15,21 @@ import mysql from "mysql2/promise";
 dotenv.config();
 
 const main = async () => {
-    try {
-        const {
-            MONGO_USER,
-            MONGO_PW,
-            MONGO_CLUSTER,
-            PORT = 5000,
-            MYSQL_HOST,
-            MYSQL_PORT,
-            MYSQL_USER,
-            MYSQL_PW,
-        } = process.env;
+    // create express application
+    const app = express();
 
+    const {
+        MONGO_USER,
+        MONGO_PW,
+        MONGO_CLUSTER,
+        PORT = 5000,
+        MYSQL_HOST,
+        MYSQL_PORT,
+        MYSQL_USER,
+        MYSQL_PW,
+    } = process.env;
+
+    try {
         // connect to mongo
         const client = await createClient({
             user: MONGO_USER,
@@ -45,17 +49,29 @@ const main = async () => {
             database: "people-api",
         });
 
-        await connection.query(`
-        CREATE TABLE IF NOT EXISTS people (
-            id INTEGER AUTO_INCREMENT NOT NULL,
-            name VARCHAR(20) NOT NULL,
-            lastname VARCHAR(50) NOT NULL,
-            age INTEGER NOT NULL,
-            PRIMARY KEY (id)
-        )`);
+        const createPeopleTableQuery = `
+            CREATE TABLE IF NOT EXISTS people (
+                id INTEGER AUTO_INCREMENT NOT NULL,
+                name VARCHAR(20) NOT NULL,
+                lastname VARCHAR(50) NOT NULL,
+                age INTEGER NOT NULL,
+                PRIMARY KEY (id)
+            )
+        `;
 
-        // create express application
-        const app = express();
+        const createCarsTableQuery = `
+            CREATE TABLE IF NOT EXISTS cars (
+                id INTEGER AUTO_INCREMENT NOT NULL,
+                brand VARCHAR(20) NOT NULL,
+                owner_id INTEGER NOT NULL,
+                PRIMARY KEY (id), 
+                FOREIGN KEY(owner_id) REFERENCES people(id)
+            )
+        `;
+
+        await connection.query(createPeopleTableQuery);
+
+        await connection.query(createCarsTableQuery);
 
         // use json middleware to process request body and converted to js object
         app.use(express.json());
@@ -104,12 +120,17 @@ const main = async () => {
             petsMongoRouter
         );
 
-        // router for mysql api
+        // router for mysql people api
         app.use("/people-mysql", peopleMysqlRouter);
+
+        // router for mysql cars api
+        app.use("/cars-mysql", carsMysqlRouter);
 
         // start a server on 'port'
         app.listen(PORT, () => {
-            console.log(`App running on: http://localhost:${PORT}/`);
+            console.log(
+                `Server running on: http://localhost:${PORT}/`
+            );
         });
 
         process.on("exit", async () => {
@@ -118,6 +139,19 @@ const main = async () => {
         });
     } catch (e) {
         console.error(e);
+
+        app.get("*", (_, res) => {
+            res.status(500).send(
+                "Something went wrong while starting the server"
+            );
+        });
+
+        // start a server on 'port'
+        app.listen(PORT, () => {
+            console.log(
+                `Error server running on: http://localhost:${PORT}/`
+            );
+        });
     }
 };
 

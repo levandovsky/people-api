@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { body } from "express-validator";
-import Car from "../models/Car.js";
-import { sendError } from "../utils/error.js";
-import { validatePersonId } from "../utils/validatorsMongo.js";
+import Car from "../../models/Car.js";
+import { sendError } from "../../utils/error.js";
+import { validatePersonId } from "../../utils/validatorsMongo.js";
 
 const router = Router();
 
