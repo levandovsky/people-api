@@ -59,17 +59,30 @@ const main = async () => {
             )
         `;
 
-        const createCarsTableQuery = `
-            CREATE TABLE IF NOT EXISTS cars (
+        const createCarBrandsTableQuery = `
+            CREATE TABLE IF NOT EXISTS car_brands (
                 id INTEGER AUTO_INCREMENT NOT NULL,
                 brand VARCHAR(20) NOT NULL,
-                owner_id INTEGER NOT NULL,
                 PRIMARY KEY (id), 
-                FOREIGN KEY(owner_id) REFERENCES people(id)
+                UNIQUE (brand)
+            )
+        `;
+
+        const createCarsTableQuery = `
+            CREATE TABLE IF NOT EXISTS cars (
+                id VARCHAR(6) NOT NULL,
+                brand_id INTEGER NOT NULL,
+                owner_id INTEGER NOT NULL,
+                PRIMARY KEY (id),
+                UNIQUE (id),
+                FOREIGN KEY (owner_id) REFERENCES people (id),
+                FOREIGN KEY (brand_id) REFERENCES car_brands (id)
             )
         `;
 
         await connection.query(createPeopleTableQuery);
+
+        await connection.query(createCarBrandsTableQuery);
 
         await connection.query(createCarsTableQuery);
 

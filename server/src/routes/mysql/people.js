@@ -130,6 +130,28 @@ router.put(
     }
 );
 
+router.get("/person/:id/cars", async (req, res) => {
+    const {mysql} = req.app;
+    const {id} = req.params;
+
+    try {
+        const query = `
+            SELECT 
+            name, lastname, age,
+            brand AS car_brand,
+            c.id AS car_plate
+            FROM people p
+                LEFT JOIN cars c ON c.owner_id = p.id
+                LEFT JOIN car_brands b ON b.id = c.brand_id; 
+        `;
+
+        const [people] = await mysql.query(query, [id]);
+        res.send(people);
+    } catch (error) {
+        sendError(error, res);
+    }
+});
+
 router.delete("/person/:id", async (req, res) => {
     const { mysql } = req.app;
     const id = Number(req.params.id);
