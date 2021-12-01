@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include("partials/head", {title: `Person | ${person.naame} ${person.lastname}`}) %> 
+    </head>
+    <body>
+        <main>
+            <form action="/views/person/edit" method="POST">
+                <%- include("components/formField", {
+                    name: "name",
+                    label: "Name",
+                    type: "text",
+                    value: person.name
+                }) %>
+
+                <%- include("components/formField", {
+                    name: "lastname",
+                    label: "Lastname",
+                    type: "text",
+                    value: person.lastname
+                }) %>
+
+                <%- include("components/formField", {
+                    name: "age",
+                    label: "Age",
+                    type: "number",
+                    value: person.age
+                }) %>
+
+                <input name="id" type="hidden" value="<%= person.id %>" />
+
+                <button type="submit">Save</button>
+            </form>
+        </main>
+    </body>
+</html>

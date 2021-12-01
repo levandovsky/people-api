@@ -1,0 +1,14 @@
+<div class="card" style="margin-bottom: 1rem;">
+    <div class="card__title">
+        <% if (titleLinkTo) { %>
+            <a href="<%= titleLinkTo %> "><%= title %></a>
+        <% } else { %>
+            <%= title %>
+        <% } %>
+         
+    </div>
+
+    <div class="card__content">
+        <%= content %> 
+    </div>
+</div>

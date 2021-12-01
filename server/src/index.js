@@ -10,6 +10,12 @@ import peopleMysqlRouter from "./routes/mysql/people.js";
 import carsMysqlRouter from "./routes/mysql/cars.js";
 import { createClient } from "./database/mongo.js";
 import mysql from "mysql2/promise";
+import path, { dirname } from "path";
+import { fileURLToPath } from "url";
+import ejsRouter from "./routes/ejs/index.js";
+import formiddable from "express-formidable";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // configure dotenv package
 dotenv.config();
@@ -17,6 +23,15 @@ dotenv.config();
 const main = async () => {
     // create express application
     const app = express();
+
+    const viewsDirectory = path.join(__dirname, "views");
+
+    // view engine setup
+    app.set("views", viewsDirectory);
+    app.set("view engine", "ejs");
+
+    // set path for static assets
+    app.use(express.static(path.join(__dirname, "public")));
 
     const {
         MONGO_USER,
@@ -89,6 +104,8 @@ const main = async () => {
         // use json middleware to process request body and converted to js object
         app.use(express.json());
 
+        app.use(formiddable());
+
         // use cors middleware to allow requests from all origins
         app.use(cors());
 
@@ -138,6 +155,8 @@ const main = async () => {
 
         // router for mysql cars api
         app.use("/cars-mysql", carsMysqlRouter);
+
+        app.use("/views", ejsRouter);
 
         // start a server on 'port'
         app.listen(PORT, () => {
