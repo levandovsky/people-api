@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "start:cli": "node ./cli/index.js",
-        "start:server": "nodemon --ignore ./database/people.json ./src/index.js"
+        "start:server": "nodemon src -e js,ejs"
     },
     "repository": {
         "type": "git",

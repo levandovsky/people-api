@@ -95,7 +95,6 @@ router.post("/person/edit", async (req, res) => {
             message: error.message,
         });
     }
-    res.send("ok");
 });
 
 export default router;
