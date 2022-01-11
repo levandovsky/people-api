@@ -1,3 +1,2 @@
-server/node_modules/
-server/.env
-server/people.json
+node_modules/
+.env

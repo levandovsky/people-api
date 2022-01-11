@@ -1,2 +1,1 @@
-# Lecture 28
-Nothing here yet...
+Server for `people-api-client`
